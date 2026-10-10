@@ -1,0 +1,20 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Acerca de{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-5 text-center">
+                <h2 class="card-title fw-bold text-dark mb-3">Acerca de este sistema</h2>
+                <p class="card-text fs-5 text-secondary">
+                    Sistema desarrollado con Django implementando arquitectura maestro-detalle para la administración de tickets y soporte.
+                </p>
+                <hr class="my-4">
+                <a href="{% url 'home' %}" class="btn btn-outline-secondary">Volver al inicio</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

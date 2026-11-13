@@ -1,0 +1,145 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Consola de Prueba IA - Helpdesk{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="h3 fw-bold mb-1">Consola de prueba del modelo</h1>
+    <p class="text-secondary small mb-0">Evalúa descripciones técnicas directamente contra el clasificador de prioridad local</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="surface-card h-100">
+            <div class="surface-header d-flex align-items-center gap-2">
+                <i class="bi bi-terminal text-primary"></i>
+                <h2 class="h6 fw-bold mb-0">Entrada de incidente</h2>
+            </div>
+            <div class="p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="texto" class="form-label">Descripción del problema técnico</label>
+                        <textarea
+                            id="texto"
+                            name="texto"
+                            rows="5"
+                            class="form-control"
+                            placeholder="Escribe aquí el caso o falla reportada por el usuario..."
+                            required>{{ texto|default:'' }}</textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <span class="form-label d-block">Ejemplos rápidos de prueba</span>
+                        <div class="d-grid gap-2">
+                            <button type="button" class="quick-sample-btn" data-sample="El servidor principal muestra pantalla azul y no enciende en producción">
+                                <i class="bi bi-lightning me-2 text-danger"></i>El servidor principal muestra pantalla azul y no enciende en producción
+                            </button>
+                            <button type="button" class="quick-sample-btn" data-sample="Olvidé mi contraseña de acceso al correo corporativo y tengo la cuenta bloqueada">
+                                <i class="bi bi-key me-2 text-warning"></i>Olvidé mi contraseña de acceso al correo corporativo y tengo la cuenta bloqueada
+                            </button>
+                            <button type="button" class="quick-sample-btn" data-sample="Solicito cambio de mouse y cable de red más largo para mi escritorio">
+                                <i class="bi bi-mouse me-2 text-success"></i>Solicito cambio de mouse y cable de red más largo para mi escritorio
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-cpu me-1"></i>Predecir
+                        </button>
+                    </div>
+                </form>
+
+                {% if error %}
+                    <div class="alert alert-warning mt-3 mb-0 small d-flex align-items-center gap-2">
+                        <i class="bi bi-exclamation-circle"></i>
+                        <span>{{ error }}</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="surface-card h-100 d-flex flex-column">
+            <div class="surface-header d-flex align-items-center gap-2">
+                <i class="bi bi-bar-chart-line text-primary"></i>
+                <h2 class="h6 fw-bold mb-0">Resultado del análisis</h2>
+            </div>
+            <div class="p-4 flex-grow-1 d-flex flex-column justify-content-center">
+                {% if resultado %}
+                    <div class="border rounded-3 p-4 bg-light mb-3">
+                        <span class="text-muted small d-block mb-1">Prioridad predicha:</span>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            {% if resultado == 'Alta' %}
+                                <span class="badge-prioridad badge-prioridad-alta fs-6 px-3 py-2">
+                                    <i class="bi bi-exclamation-circle"></i>{{ resultado }}
+                                </span>
+                                <span class="text-danger fw-semibold small">Urgencia crítica</span>
+                            {% elif resultado == 'Media' %}
+                                <span class="badge-prioridad badge-prioridad-media fs-6 px-3 py-2">
+                                    <i class="bi bi-dash-circle"></i>{{ resultado }}
+                                </span>
+                                <span class="text-warning-emphasis fw-semibold small">Urgencia moderada</span>
+                            {% else %}
+                                <span class="badge-prioridad badge-prioridad-baja fs-6 px-3 py-2">
+                                    <i class="bi bi-check-circle"></i>{{ resultado }}
+                                </span>
+                                <span class="text-success fw-semibold small">Urgencia baja</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="progress mb-2" style="height: 8px;">
+                            {% if resultado == 'Alta' %}
+                                <div class="progress-bar bg-danger" role="progressbar" style="width: 100%;"></div>
+                            {% elif resultado == 'Media' %}
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: 60%;"></div>
+                            {% else %}
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 25%;"></div>
+                            {% endif %}
+                        </div>
+
+                        <p class="small text-secondary mb-0">
+                            {% if resultado == 'Alta' %}
+                                Nivel de urgencia elevado. Requiere atención inmediata por impacto operativo o caída de servicio.
+                            {% elif resultado == 'Media' %}
+                                Nivel de urgencia estándar. Afecta una función específica sin detener la operación general.
+                            {% else %}
+                                Nivel de urgencia menor. Puede programarse dentro de la cola regular de solicitudes.
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="border rounded-3 p-3 bg-white">
+                        <span class="text-muted small fw-semibold d-block mb-1">Texto evaluado</span>
+                        <p class="small text-dark mb-0">{{ texto }}</p>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <span class="kpi-icon kpi-icon-blue mb-3">
+                            <i class="bi bi-cpu"></i>
+                        </span>
+                        <h3 class="h6 fw-semibold text-dark mb-1">Esperando consulta</h3>
+                        <p class="small mb-0">
+                            Ingresa un problema técnico o selecciona un ejemplo rápido en el panel izquierdo y presiona Predecir.
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const textarea = document.getElementById('texto');
+    document.querySelectorAll('.quick-sample-btn').forEach(function (button) {
+        button.addEventListener('click', function () {
+            textarea.value = this.dataset.sample;
+            textarea.focus();
+        });
+    });
+</script>
+{% endblock %}

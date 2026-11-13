@@ -1,19 +1,46 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %}Acerca de{% endblock %}
+{% block title %}Acerca de - Helpdesk{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-5 text-center">
-                <h2 class="card-title fw-bold text-dark mb-3">Acerca de este sistema</h2>
-                <p class="card-text fs-5 text-secondary">
-                    Sistema desarrollado con Django implementando arquitectura maestro-detalle para la administración de tickets y soporte.
-                </p>
-                <hr class="my-4">
-                <a href="{% url 'home' %}" class="btn btn-outline-secondary">Volver al inicio</a>
+    <div class="col-lg-8">
+        <div class="surface-card p-4 p-md-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <span class="auth-icon-circle">
+                    <i class="bi bi-info-circle"></i>
+                </span>
+                <div>
+                    <h1 class="h4 fw-bold mb-0">Acerca del Sistema Helpdesk</h1>
+                    <small class="text-muted">Arquitectura modular maestro-detalle con clasificación de incidentes</small>
+                </div>
             </div>
+            <p class="text-secondary mb-4">
+                Esta plataforma ha sido construida con Django para centralizar la gestión de incidentes técnicos. Permite registrar tickets con evidencias visuales, hacer seguimiento mediante tareas de resolución asociadas y clasificar automáticamente la prioridad a través de un modelo de aprendizaje automático local integrado en la aplicación <code>motor_ia</code>.
+            </p>
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="border rounded-3 p-3 h-100 bg-light">
+                        <div class="fw-semibold text-dark mb-1"><i class="bi bi-people me-2 text-primary"></i>accounts</div>
+                        <small class="text-muted">Autenticación, registro de operadores y gestión de grupos.</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="border rounded-3 p-3 h-100 bg-light">
+                        <div class="fw-semibold text-dark mb-1"><i class="bi bi-ticket-detailed me-2 text-primary"></i>soporte</div>
+                        <small class="text-muted">Administración maestro-detalle de tickets y tareas técnicas.</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="border rounded-3 p-3 h-100 bg-light">
+                        <div class="fw-semibold text-dark mb-1"><i class="bi bi-cpu me-2 text-primary"></i>motor_ia</div>
+                        <small class="text-muted">Servicio local de clasificación de prioridad y consola de prueba.</small>
+                    </div>
+                </div>
+            </div>
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Volver al inicio
+            </a>
         </div>
     </div>
 </div>

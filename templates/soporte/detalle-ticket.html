@@ -1,55 +1,116 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %}Detalle del Ticket{% endblock %}
+{% block title %}Ticket #{{ ticket.id }} - Helpdesk{% endblock %}
 
 {% block content %}
-<div class="row">
-    <!-- Ticket Column -->
-    <div class="col-lg-7 mb-4">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h3 class="mb-0 fw-bold">{{ ticket.titulo }}</h3>
-                <a href="{% url 'editar_ticket' ticket.id %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <a href="{% url 'tickets' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Volver al listado
+    </a>
+    <a href="{% url 'editar_ticket' ticket.id %}" class="btn btn-sm btn-outline-primary">
+        <i class="bi bi-pencil-square me-1"></i>Editar ticket
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="surface-card h-100 d-flex flex-column">
+            <div class="surface-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div>
+                    <span class="text-muted small fw-medium d-block">Ticket #{{ ticket.id }}</span>
+                    <h1 class="h4 fw-bold mb-0">{{ ticket.titulo }}</h1>
+                </div>
+                <div>
+                    {% if ticket.prioridad == 'Alta' %}
+                        <span class="badge-prioridad badge-prioridad-alta">
+                            <i class="bi bi-exclamation-circle"></i>Prioridad asignada por IA: {{ ticket.prioridad }}
+                        </span>
+                    {% elif ticket.prioridad == 'Media' %}
+                        <span class="badge-prioridad badge-prioridad-media">
+                            <i class="bi bi-dash-circle"></i>Prioridad asignada por IA: {{ ticket.prioridad }}
+                        </span>
+                    {% else %}
+                        <span class="badge-prioridad badge-prioridad-baja">
+                            <i class="bi bi-check-circle"></i>Prioridad asignada por IA: {{ ticket.prioridad }}
+                        </span>
+                    {% endif %}
+                </div>
             </div>
-            {% if ticket.imagen %}
-                <img src="{{ ticket.imagen.url }}" class="card-img-top rounded-0" alt="Imagen del ticket" style="max-height: 400px; object-fit: cover;">
-            {% endif %}
-            <div class="card-body">
-                <h5 class="text-muted mb-3">Descripción</h5>
-                <p class="card-text">{{ ticket.descripcion }}</p>
-            </div>
-            <div class="card-footer bg-white text-end">
-                <a href="{% url 'tickets' %}" class="btn btn-secondary btn-sm">Volver al listado</a>
+
+            <div class="p-4 flex-grow-1">
+                <h2 class="h6 text-uppercase text-muted fw-semibold mb-2">Descripción del incidente</h2>
+                <p class="text-dark mb-4" style="white-space: pre-line;">{{ ticket.descripcion }}</p>
+
+                <h2 class="h6 text-uppercase text-muted fw-semibold mb-2">Evidencia adjunta</h2>
+                {% if ticket.imagen %}
+                    <div class="evidence-frame">
+                        <img src="{{ ticket.imagen.url }}" alt="Captura del error de {{ ticket.titulo }}">
+                    </div>
+                    <div class="mt-2 text-end">
+                        <a href="{{ ticket.imagen.url }}" target="_blank" class="small text-decoration-none">
+                            <i class="bi bi-box-arrow-up-right me-1"></i>Abrir imagen original
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="border rounded-3 p-4 text-center text-muted bg-light">
+                        <i class="bi bi-image fs-3 d-block mb-1"></i>
+                        <span class="small">No se adjuntó ninguna captura de pantalla en este ticket.</span>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
 
-    <!-- Tareas Column -->
-    <div class="col-lg-5 mb-4">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">Tareas Asociadas</h4>
-                <a href="{% url 'crear_tarea' ticket.id %}" class="btn btn-sm btn-primary">+ Añadir</a>
+    <div class="col-lg-5">
+        <div class="surface-card h-100 d-flex flex-column">
+            <div class="surface-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="h5 fw-bold mb-0">Tareas de resolución</h2>
+                    <small class="text-muted">{{ ticket.tareas.count }} actividad{{ ticket.tareas.count|pluralize:"es" }} registrada{{ ticket.tareas.count|pluralize }}</small>
+                </div>
+                <a href="{% url 'crear_tarea' ticket.id %}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus-lg me-1"></i>Añadir tarea
+                </a>
             </div>
-            <div class="card-body p-0">
-                <ul class="list-group list-group-flush">
-                    {% for tarea in ticket.tareas.all %}
-                    <li class="list-group-item d-flex justify-content-between align-items-start p-3">
-                        <div class="ms-2 me-auto">
-                            <div>{{ tarea.descripcion }}</div>
-                        </div>
-                        {% if tarea.prioridad == 'Alta' %}
-                            <span class="badge bg-danger rounded-pill">{{ tarea.prioridad }}</span>
-                        {% elif tarea.prioridad == 'Media' %}
-                            <span class="badge bg-warning text-dark rounded-pill">{{ tarea.prioridad }}</span>
-                        {% else %}
-                            <span class="badge bg-success rounded-pill">{{ tarea.prioridad }}</span>
-                        {% endif %}
-                    </li>
-                    {% empty %}
-                    <li class="list-group-item text-muted text-center p-4">No hay tareas para este ticket.</li>
-                    {% endfor %}
-                </ul>
+
+            <div class="p-4 flex-grow-1">
+                {% if ticket.tareas.all %}
+                    <ul class="timeline">
+                        {% for tarea in ticket.tareas.all %}
+                        <li class="timeline-item">
+                            {% if tarea.prioridad == 'Alta' %}
+                                <span class="timeline-dot timeline-dot-alta"></span>
+                            {% elif tarea.prioridad == 'Media' %}
+                                <span class="timeline-dot timeline-dot-media"></span>
+                            {% else %}
+                                <span class="timeline-dot timeline-dot-baja"></span>
+                            {% endif %}
+
+                            <div class="border rounded-3 p-3 bg-white">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="small text-muted fw-medium">Tarea #{{ forloop.counter }}</span>
+                                    {% if tarea.prioridad == 'Alta' %}
+                                        <span class="badge-prioridad badge-prioridad-alta">{{ tarea.prioridad }}</span>
+                                    {% elif tarea.prioridad == 'Media' %}
+                                        <span class="badge-prioridad badge-prioridad-media">{{ tarea.prioridad }}</span>
+                                    {% else %}
+                                        <span class="badge-prioridad badge-prioridad-baja">{{ tarea.prioridad }}</span>
+                                    {% endif %}
+                                </div>
+                                <p class="mb-0 text-dark small">{{ tarea.descripcion }}</p>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-clipboard-check fs-2 d-block mb-2"></i>
+                        <p class="small mb-3">Aún no se han registrado tareas para este ticket.</p>
+                        <a href="{% url 'crear_tarea' ticket.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-plus-lg me-1"></i>Agregar primera tarea
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>

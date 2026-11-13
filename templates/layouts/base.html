@@ -1,68 +1,105 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Sistema Helpdesk{% endblock %}</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8f9fa; }
-        .navbar-brand { font-weight: bold; }
-        .main-container { margin-top: 2rem; margin-bottom: 2rem; }
-        /* Auto-style Django forms */
-        form p label { font-weight: 500; margin-bottom: 0.25rem; display: block; }
-        form p input[type="text"], form p input[type="password"], form p input[type="email"], form p textarea, form p select {
-            width: 100%;
-            padding: 0.375rem 0.75rem;
-            border: 1px solid #dee2e6;
-            border-radius: 0.375rem;
-            display: block;
-        }
-        form p input[type="file"] { margin-top: 0.5rem; display: block; }
-        .helptext { font-size: 0.875em; color: #6c757d; display: block; margin-top: 0.25rem; }
-        .errorlist { color: #dc3545; list-style-type: none; padding-left: 0; margin-bottom: 0.5rem; font-size: 0.875em; }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}">Helpdesk</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+<body class="d-flex flex-column min-vh-100">
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-helpdesk sticky-top">
+        <div class="container py-1">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'home' %}">
+                <span class="brand-mark">
+                    <i class="bi bi-headset"></i>
+                </span>
+                <span>Helpdesk</span>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarHelpdesk" aria-controls="navbarHelpdesk" aria-expanded="false" aria-label="Mostrar menú">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Inicio</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'acerca_de' %}">Acerca de</a></li>
+            <div class="collapse navbar-collapse" id="navbarHelpdesk">
+                <ul class="navbar-nav me-auto ms-lg-3 gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+                            <i class="bi bi-grid-1x2 me-1"></i>Inicio
+                        </a>
+                    </li>
                     {% if user.is_authenticated %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'tickets' %}">Tickets</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'grupos' %}">Grupos</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name in 'tickets nuevo_ticket detalle_ticket editar_ticket crear_tarea' %}active{% endif %}" href="{% url 'tickets' %}">
+                                <i class="bi bi-ticket-detailed me-1"></i>Tickets
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name in 'grupos editar_grupo' %}active{% endif %}" href="{% url 'grupos' %}">
+                                <i class="bi bi-people me-1"></i>Grupos
+                            </a>
+                        </li>
                     {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'probar_ia' %}active{% endif %}" href="{% url 'probar_ia' %}">
+                            <i class="bi bi-cpu me-1"></i>Consola IA
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'acerca_de' %}active{% endif %}" href="{% url 'acerca_de' %}">
+                            <i class="bi bi-info-circle me-1"></i>Acerca de
+                        </a>
+                    </li>
                 </ul>
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-2 mt-2 mt-lg-0">
                     {% if user.is_authenticated %}
-                        <li class="nav-item"><span class="nav-link text-light">Hola, {{ user.username }}</span></li>
+                        <li class="nav-item">
+                            <span class="nav-link text-light opacity-75">
+                                <i class="bi bi-person-circle me-1"></i>{{ user.username }}
+                            </span>
+                        </li>
                         <li class="nav-item">
                             <form action="{% url 'logout' %}" method="post" class="d-inline">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-light btn-sm mt-1 ms-2">Cerrar sesión</button>
+                                <button type="submit" class="btn btn-outline-light btn-sm px-3">
+                                    <i class="bi bi-box-arrow-right me-1"></i>Cerrar sesión
+                                </button>
                             </form>
                         </li>
                     {% else %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Iniciar sesión</a></li>
-                        <li class="nav-item"><a class="btn btn-primary btn-sm mt-1 ms-2" href="{% url 'registro' %}">Registro</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}" href="{% url 'login' %}">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Iniciar sesión
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-primary btn-sm px-3" href="{% url 'registro' %}">
+                                <i class="bi bi-person-plus me-1"></i>Registro
+                            </a>
+                        </li>
                     {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
 
-    <main class="container main-container">
+    <main class="container py-4 flex-grow-1">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Bootstrap 5 JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <footer class="site-footer py-3 mt-auto">
+        <div class="container d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+            <span>Sistema Helpdesk &copy; 2026</span>
+            <span class="d-flex align-items-center gap-1">
+                <i class="bi bi-shield-check"></i>Plataforma de soporte técnico y clasificación de incidentes
+            </span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

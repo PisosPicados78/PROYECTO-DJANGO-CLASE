@@ -1,9 +1,16 @@
 from django.db import models
 
 class Ticket(models.Model):
+    PRIORIDAD_CHOICES = [
+        ('Alta', 'Alta'),
+        ('Media', 'Media'),
+        ('Baja', 'Baja'),
+    ]
+
     titulo = models.CharField(max_length=200)
     descripcion = models.TextField()
     imagen = models.ImageField(upload_to='tickets/', null=True, blank=True)
+    prioridad = models.CharField(max_length=10, choices=PRIORIDAD_CHOICES, default='Media', blank=True)
 
     def __str__(self):
         return self.titulo
